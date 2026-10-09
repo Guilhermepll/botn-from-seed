@@ -32,6 +32,12 @@ exports.handler = async (event) => {
       const detail = await response.json().catch(() => ({}));
       throw new Error(detail.msg || detail.message || 'Não foi possível definir a senha.');
     }
+    const profileResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${ADMIN_ID}`, {
+      method: 'PATCH',
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ role: 'admin' })
+    });
+    if (!profileResponse.ok) throw new Error('Senha definida, mas não foi possível liberar a permissão de administrador. Tente novamente.');
     return json(200, { ok: true, message: 'Senha definida com sucesso.' });
   } catch (error) {
     return json(400, { error: error.message || 'Não foi possível concluir a configuração.' });
